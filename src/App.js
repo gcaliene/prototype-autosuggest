@@ -1,5 +1,5 @@
 import * as React from 'react';
-import TextField from '@material-ui/core/TextField';
+import {TextField, Button, Dialog} from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { parseLocation } from 'parse-address'
 
@@ -47,6 +47,9 @@ export default function AddressAutoSuggest() {
 
     };
 
+    const handleClickOpen = () => {
+
+    }
     // React.useEffect(() => {
     //     if (!open) {
     //         setOptions([]);
@@ -119,7 +122,7 @@ export default function AddressAutoSuggest() {
             />
             <span>
                 <TextField
-                    value={selectedOption?.city}
+                    value={selectedOption?.city ?? ""}
                     InputLabelProps={{ shrink: true }}
                     inputProps={{
                         autoComplete: 'new-password',
@@ -134,7 +137,7 @@ export default function AddressAutoSuggest() {
                     onChange={e => onChangeHandleUncontrolled(e, 'city')}
                 />
                 <TextField
-                    value={selectedOption?.state}
+                    value={selectedOption?.state ?? ""}
                     inputProps={{
                         autoComplete: 'new-password',
                         form: {
@@ -148,7 +151,7 @@ export default function AddressAutoSuggest() {
                     onChange={e => onChangeHandleUncontrolled(e, 'state')}
                 />
                 <TextField
-                    value={selectedOption?.zip}
+                    value={selectedOption?.zip ?? ""}
                     inputProps={{
                         autoComplete: 'new-password',
                         form: {
@@ -162,7 +165,10 @@ export default function AddressAutoSuggest() {
                     onChange={e => onChangeHandleUncontrolled(e, 'zip')}
                 />
             </span>
-
+            {/*<br/><br/>*/}
+            {/*<Button variant="contained" color="primary" onClick={handleClickOpen}>*/}
+            {/*    Submit*/}
+            {/*</Button>*/}
         </>
     );
 }
