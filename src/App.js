@@ -1,28 +1,23 @@
 import * as React from 'react';
 import {TextField, Button, Dialog} from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { parseLocation } from 'parse-address'
 
 export default function AddressAutoSuggest() {
     const [open, setOpen] = React.useState(false);
     const [options, setOptions] = React.useState([]);
     const [selectedOption, setSelectedOption] = React.useState({})
-    // const [loaded, setLoaded] = React.useState(false)
-    // const loading = open && options.length === 0;
 
-    const hasAddressLabel = (location) => {
-        if(location.address && location.address.label !== undefined && location.address.label.length !== 0) {
-            return {
-                label:location.address.label,
-                parsed: parseLocation(location.address.label.replace(',', ''))
+    const addressReducer = (items = []) => {
+        return items.reduce((filtered, item) => {
+            if(item.resultType === 'houseNumber') {
+                filtered.push(item.address)
             }
-        }
+            return filtered
+        }, [])
     }
 
-    const appendSpace = (string) => string?.length > 0 ? string + ' ' :  '';
-
-    const joinAddressLineOne = ({number = '', prefix = '', street = '', type = ''}) => {
-        return `${appendSpace(number)}${appendSpace(prefix)}${appendSpace(street)}${type}`.trim();
+    const joinAddressLineOne = (arr) => {
+        return arr.join(' ');
     }
 
     const onChangeHandleUncontrolled = (e, type) => {
@@ -31,35 +26,21 @@ export default function AddressAutoSuggest() {
     }
 
     const onChangeHandle = async value => {
-// this default api does not support searching but if you use google maps or some other use the value and post to get back you result and then set it using setOptions
         console.log(value);
         console.log(options)
-            const response = await fetch(
-                `${process.env.REACT_APP_HERE_AUTOSUGGEST_SEARCH_API}?in=countryCode:USA&q=${value}&at=37.0902,95.7129&apiKey=${process.env.REACT_APP_HERE_API_KEY}`,
-            );
+        if(value.length > 5){
+            console.log('calling')
+            const response = await fetch(`${process.env.REACT_APP_HERE_AUTOCOMPLETE_SEARCH_API}?in=countryCode:USA&q=${value}&at=37.0902,95.7129&limit=20&apiKey=${process.env.REACT_APP_HERE_API_KEY}`);
             const { items } = await response.json();
-            // console.log(items);
-            // setLoaded()
-        if (items !== undefined || items.length !== 0) {
-            setOptions(items.map(hasAddressLabel));
+            if (items !== undefined || items.length !== 0) {
+                setOptions(addressReducer(items));
+            }
         }
-
-
     };
 
-    const handleClickOpen = () => {
-
-    }
-    // React.useEffect(() => {
-    //     if (!open) {
-    //         setOptions([]);
-    //     }
-    //     console.log({useEffect: selectedOption})
-    // }, [open]);
     return (
         <>
             <Autocomplete
-                // value={}
                 id="asynchronous-demo"
                 style={{ width: 300 }}
                 open={open}
@@ -77,20 +58,20 @@ export default function AddressAutoSuggest() {
                     return option.label === value.label
                 }}
                 renderOption={(option, {selected}) => {
-                    // console.log(option?.label, selected)
+                    console.log(option, selected)
                     return (<>{option?.label}</>)
                 }}
                 getOptionLabel={option => {
                     // console.log(options, options.length)
                     console.log(option?.label)
                     // setSelectedOption(option?.parsed)
-                    return joinAddressLineOne(option?.parsed);
+                    return joinAddressLineOne([option?.houseNumber, option?.street]);
                     // return option?.parsed;
                 }}
-                onChange={(event, {parsed}) => setSelectedOption(parsed) }
+                onChange={(event, address) => setSelectedOption(address) }
                 options={options}
                 renderInput={params => {
-                    console.log(selectedOption)
+                    // console.log(selectedOption)
                     params.inputProps.autoComplete = "new-password";
 
                     return (
@@ -151,7 +132,7 @@ export default function AddressAutoSuggest() {
                     onChange={e => onChangeHandleUncontrolled(e, 'state')}
                 />
                 <TextField
-                    value={selectedOption?.zip ?? ""}
+                    value={selectedOption?.postalCode ?? ""}
                     inputProps={{
                         autoComplete: 'new-password',
                         form: {
@@ -159,16 +140,12 @@ export default function AddressAutoSuggest() {
                         },
                     }}
                     InputLabelProps={{ shrink: true }}
-                    label="Zip"
-                    placeholder="Zip"
+                    label=""
+                    placeholder="postalCode"
                     variant="outlined"
-                    onChange={e => onChangeHandleUncontrolled(e, 'zip')}
+                    onChange={e => onChangeHandleUncontrolled(e, 'postalCode')}
                 />
             </span>
-            {/*<br/><br/>*/}
-            {/*<Button variant="contained" color="primary" onClick={handleClickOpen}>*/}
-            {/*    Submit*/}
-            {/*</Button>*/}
         </>
     );
 }
