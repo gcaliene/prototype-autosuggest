@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {TextField, Button, Dialog} from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import * as _ from 'lodash';
 
 export default function AddressAutoSuggest() {
     const [open, setOpen] = React.useState(false);
@@ -37,6 +38,9 @@ export default function AddressAutoSuggest() {
             }
         }
     };
+
+    const debouncedOnChangeHandle = React.useCallback(
+        _.debounce(onChangeHandle, 600, { maxWait: 1800 }), []);
 
     return (
         <>
@@ -84,7 +88,7 @@ export default function AddressAutoSuggest() {
                         onChange={ev => {
                             // dont fire API if the user delete or not entered anything
                             if (ev.target.value !== "" || ev.target.value !== null) {
-                                onChangeHandle(ev.target.value);
+                                debouncedOnChangeHandle(ev.target.value);
                             }
                         }}
                         InputProps={{
